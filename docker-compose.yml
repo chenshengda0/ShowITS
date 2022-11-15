@@ -1,0 +1,90 @@
+version: '3'
+
+services:
+
+  dev-haproxy:
+    hostname: dex-haproxy
+    restart: always
+    build:
+      context: ./
+      dockerfile: haproxy/Dockerfile
+    environment:
+      - RABBITMQ_DEFAULT_USER=dream 
+      - RABBITMQ_DEFAULT_PASS=231510622abc
+      - PATH=$PATH:/opt/rabbitmq/sbin:/usr/local/bin/:/bin
+    ports:
+      - 35672:35672
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - dex-its
+
+  dev-mysql:
+    hostname: dex-mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=231510622abc
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - ./mysql/datadir:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - dex-its
+
+  dev-phpmyadmin:
+    hostname: dex-phpmyadmin
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8888:80
+    environment:
+      - PMA_ARBITRARY=1
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - dev-mysql
+    networks:
+      - dex-its
+
+  dev-node:
+    hostname: dex-node
+    restart: always
+    build:
+      context: ./
+      dockerfile: node-server/Dockerfile
+    ports:
+      - 9527:9527
+    volumes:
+      - ./build:/opt/build
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - dev-haproxy
+      - dev-mysql
+    networks:
+      - dex-its
+
+  dev-node-crontab:
+    hostname: dex-node-crontab
+    restart: always
+    build:
+      context: ./
+      dockerfile: node-server-crontab/Dockerfile
+    volumes:
+      - ./build:/opt/build
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - dev-haproxy
+      - dev-mysql
+    networks:
+      - dex-its
+
+networks:
+  dex-its:
+    driver:
+      bridge
