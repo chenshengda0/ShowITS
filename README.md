@@ -1,3 +1,10 @@
+# INSTALL
+```
+    git clone git@github.com:chenshengda0/ShowITS.git
+    cd ./ShowITS
+    docker-compose up -d --build
+```
+
 # GET
 ```
     curl http://127.0.0.1:9527
