@@ -58,5 +58,6 @@
     curl -X POST http://127.0.0.1:9527/getRechargeLogAll
     curl -X POST http://127.0.0.1:9527/getRechargeLog
     curl -d "handleId=1" -X POST http://127.0.0.1:9527/setRechargeLog
+    curl -d "transactionHash=0x8b79f3f19fa4c5b7dfe701776b1cff24090ee078e6f66018a55b396ec417f544&sender=0xF54FB2aF8e64B58c2d1B116aeA8Aea4D718fbcb6"  -X POST  http://127.0.0.1:9527/searchRechargeLog
 ```
 
